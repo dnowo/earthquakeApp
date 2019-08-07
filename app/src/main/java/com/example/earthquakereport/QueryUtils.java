@@ -1,6 +1,6 @@
 package com.example.earthquakereport;
 
-import android.provider.ContactsContract;
+
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -134,9 +134,13 @@ public class QueryUtils {
         // Perform HTTP request to the URL and receive a JSON response back
         String jsonResponse = null;
         try {
+            Thread.sleep(2000);
+
             jsonResponse = makeHttpRequest(url);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Problem making the HTTP request.", e);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         // Extract relevant fields from the JSON response and create a list of {@link Earthquake}s

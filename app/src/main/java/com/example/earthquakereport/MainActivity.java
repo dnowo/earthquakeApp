@@ -15,39 +15,29 @@
  */
 package com.example.earthquakereport;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+
 import androidx.appcompat.app.AppCompatActivity;
 
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.w3c.dom.Text;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private TextView mEmptyState;
     private EarthquakeAdapter mAdapter;
 
     public static final String LOG_TAG = MainActivity.class.getName();
@@ -58,14 +48,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.earthquake_activity);
 
-
+        mEmptyState = (TextView) findViewById(R.id.empty_view);
+        View loadingIndicator = findViewById(R.id.loading_indicator);
         // Find a reference to the {@link ListView} in the layout
         ListView earthquakeListView = (ListView) findViewById(R.id.list);
+        if(isOnline()){
+            // Hide loading indicator because the data has been loaded
+
+            EarthquakeAsyncTask task = new EarthquakeAsyncTask();
+            task.execute(URL_TO_DOWNLOAD);
+
+
+
+
+
+            earthquakeListView.setEmptyView(mEmptyState);
+            // Set empty state text to display "No earthquakes found."
+            mEmptyState.setText(R.string.no_earthquakes);
+
+        }
+        else {
+            mEmptyState.setText("No connection");
+        }
 
         //Create new ArrayAdapter to Earthquake class
 
         mAdapter = new EarthquakeAdapter(this, new ArrayList<Earthquake>());
-
+        loadingIndicator.setVisibility(View.GONE);
 
         // Set the adapter on the {@link ListView}
         // so the list can be populated in the user interface
@@ -83,10 +92,18 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        EarthquakeAsyncTask task = new EarthquakeAsyncTask();
-        task.execute(URL_TO_DOWNLOAD);
-    }
 
+
+    }
+    public boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     private class EarthquakeAsyncTask extends AsyncTask<String, Void, List<Earthquake>> {
         @Override
         protected List<Earthquake> doInBackground(String... urls) {
