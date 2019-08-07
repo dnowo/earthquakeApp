@@ -3,18 +3,20 @@ package com.example.earthquakereport;
 public class Earthquake {
 
 
-    private String mScale;
+    private double mScale;
     private String mCityName;
     private String mData;
+    private String mUrl;
 
 
-    public Earthquake(String scale, String city, String data){
+    public Earthquake(double scale, String city, String data, String url){
         mScale = scale;
         mData = data;
         mCityName = city;
+        mUrl=url;
     }
 
-    public String getScale(){
+    public double getScale(){
         return mScale;
     }
     public String getCityName() {
@@ -23,5 +25,6 @@ public class Earthquake {
     public String getData(){
         return mData;
     }
+    public String getUrl(){return mUrl;}
 
 }
